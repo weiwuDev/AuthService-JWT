@@ -1,2 +1,1 @@
-# AuthService
 # AuthService-JWT

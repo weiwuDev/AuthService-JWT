@@ -1,0 +1,43 @@
+server:
+  port: ${custome_port:8091}
+
+spring:
+  application:
+    name: ${app_name:AuthService}
+
+  rabbitmq:
+    host: ${rabbitmq_host:localhost}
+    port: ${rabbitmq_port:5672}
+    username: ${rabbitmq_user:guest}
+    password: ${rabbitmq_pass:guest}
+  cloud:
+    bus:
+      enabled: ${cloud_bus:true}
+      refresh:
+         enabled: ${cloud_bus_refresh:true}
+      id: ${spring.application.name}:${spring.profiles.active}:${random.uuid}
+
+  data:
+    mongodb:
+      uri: ${mongodb_uri}
+      auto-index-creation: ${mongodb_auto_index:true}
+
+eureka:
+  client:
+    registerWithEureka: ${registerWithEureka:true}
+    fetchRegistry: ${fetchRegistry:true}
+    service-url:
+      defaultZone:  ${eureka_url:http://localhost:8761/eureka/}
+
+  instance:
+    hostname: ${HOSTNAME:${spring.application.name}}
+    preferIpAddress: ${preferIpAddress:false}
+    instanceId: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${random.value}}}:${server.port}
+
+
+springboot-webflux-jwt:
+  jwt:
+    secret: ${jwt_secret}
+    expiration: ${jwt_expireation_seconds}
+  refresh_token:
+    expiration: ${refresh_token_expireation_seconds}
