@@ -86,5 +86,8 @@ public class AuthController {
     public Mono<ResponseEntity<ResponseObject>> checkAuth(WebSession webSession, ServerWebExchange exchange) {
         return Mono.just(ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(checkResponse)));
     }
-
+    @GetMapping("/checkno")
+    public Mono<ResponseEntity<ResponseObject>> checkAuthNo(WebSession webSession, ServerWebExchange exchange) {
+        return Mono.just(ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(checkResponse)));
+    }
 }
