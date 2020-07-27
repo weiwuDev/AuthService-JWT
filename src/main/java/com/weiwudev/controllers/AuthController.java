@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 
@@ -82,7 +83,7 @@ public class AuthController {
 
 
     @GetMapping("/check")
-    public Mono<ResponseEntity<ResponseObject>> checkAuth(WebSession webSession) {
+    public Mono<ResponseEntity<ResponseObject>> checkAuth(WebSession webSession, ServerWebExchange exchange) {
         return Mono.just(ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(checkResponse)));
     }
 

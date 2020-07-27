@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.weiwudev</groupId>
-    <artifactId>auth-service</artifactId>
+    <artifactId>auth-service-jwt</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>AuthService</name>
     <description>JWT version of AuthService</description>
