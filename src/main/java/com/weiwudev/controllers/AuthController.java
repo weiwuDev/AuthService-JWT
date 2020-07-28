@@ -47,19 +47,18 @@ public class AuthController {
     @PostMapping("/login")
     public Mono<ResponseEntity<AuthResponse>> login(@RequestBody AuthRequest user, ServerHttpResponse response) {
         return userRepository.findByUsername(user.getUsername()).flatMap(userDetails -> {
-            if(passwordEncoder.matches(user.getPassword(),userDetails.getPassword())) {
+            if (passwordEncoder.matches(user.getPassword(), userDetails.getPassword())) {
                 return refreshTokenService.generateAndSave(userDetails.getUsername()).map(token -> {
                     response.addCookie(ResponseCookie.from("Refresh_Token", Base64.getEncoder().encodeToString(token.getBytes())).httpOnly(true).sameSite("None").build());
                     return ResponseEntity.status(HttpStatus.OK).body(new AuthResponse(jwtUtil.generateToken(userDetails)));
                 });
-            }else {
+            } else {
                 return Mono.empty();
             }
         }).switchIfEmpty(Mono.defer(() -> {
             response.addCookie(ResponseCookie.from("Refresh", "").httpOnly(true).sameSite("None").maxAge(0).build());
             return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse()));
         }));
-
     }
 
 
@@ -73,12 +72,12 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public Mono<ResponseEntity<AuthResponse>> refresh(@CookieValue(name = "Refresh_Token", required = true) String token, ServerHttpResponse response) {
-     return refreshTokenService.validateToken(token)
-             .map(userDetails -> ResponseEntity.status(HttpStatus.OK).body(new AuthResponse(jwtUtil.generateToken(userDetails))))
-             .switchIfEmpty(Mono.defer(() -> {
-                 response.addCookie(ResponseCookie.from("Refresh_Token", "").httpOnly(true).sameSite("None").maxAge(0).build());
-                 return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse()));
-             }));
+        return refreshTokenService.validateToken(token)
+                .map(userDetails -> ResponseEntity.status(HttpStatus.OK).body(new AuthResponse(jwtUtil.generateToken(userDetails))))
+                .switchIfEmpty(Mono.defer(() -> {
+                    response.addCookie(ResponseCookie.from("Refresh_Token", "").httpOnly(true).sameSite("None").maxAge(0).build());
+                    return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse()));
+                }));
     }
 
 
@@ -86,6 +85,7 @@ public class AuthController {
     public Mono<ResponseEntity<ResponseObject>> checkAuth(WebSession webSession, ServerWebExchange exchange) {
         return Mono.just(ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(checkResponse)));
     }
+
     @GetMapping("/checkno")
     public Mono<ResponseEntity<ResponseObject>> checkAuthNo(WebSession webSession, ServerWebExchange exchange) {
         return Mono.just(ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(checkResponse)));
