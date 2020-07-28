@@ -73,7 +73,12 @@ public class AuthController {
     @PostMapping("/refresh")
     public Mono<ResponseEntity<AuthResponse>> refresh(@CookieValue(name = "Refresh_Token", required = true) String token, ServerHttpResponse response) {
         return refreshTokenService.validateToken(token)
-                .map(userDetails -> ResponseEntity.status(HttpStatus.OK).body(new AuthResponse(jwtUtil.generateToken(userDetails))))
+                .flatMap(userDetails -> {
+                    return refreshTokenService.getNewToken(userDetails.getUsername(), token).flatMap(newToken -> {
+                        response.addCookie(ResponseCookie.from("Refresh_Token", Base64.getEncoder().encodeToString(newToken.getBytes())).httpOnly(true).sameSite("None").build());
+                        return Mono.just(ResponseEntity.status(HttpStatus.OK).body(new AuthResponse(jwtUtil.generateToken(userDetails))));
+                    });
+                })
                 .switchIfEmpty(Mono.defer(() -> {
                     response.addCookie(ResponseCookie.from("Refresh_Token", "").httpOnly(true).sameSite("None").maxAge(0).build());
                     return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse()));

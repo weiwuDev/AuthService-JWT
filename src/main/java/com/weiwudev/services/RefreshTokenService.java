@@ -40,6 +40,10 @@ public class RefreshTokenService {
         return refreshTokenRepository.insert(refreshToken.generateNewToken()).retryWhen(Retry.fixedDelay(5, Duration.ofSeconds(5))).map(RefreshToken::getToken);
     }
 
+    public Mono<String> getNewToken(String username, String token){
+        return refreshTokenRepository.deleteById(new String(Base64.getDecoder().decode(token))).then(generateAndSave(username));
+    }
+
     public Mono<Boolean> deleteToken(String token){
         return refreshTokenRepository.deleteById(new String(Base64.getDecoder().decode(token))).map(x -> true).defaultIfEmpty(false);
     }
