@@ -49,14 +49,14 @@ public class AuthController {
         return userRepository.findByUsername(user.getUsername()).flatMap(userDetails -> {
             if (passwordEncoder.matches(user.getPassword(), userDetails.getPassword())) {
                 return refreshTokenService.generateAndSave(userDetails.getUsername()).map(token -> {
-                    response.addCookie(ResponseCookie.from("Refresh_Token", Base64.getEncoder().encodeToString(token.getBytes())).httpOnly(true).sameSite("None").build());
+                    response.addCookie(ResponseCookie.from("Refresh_Token", Base64.getEncoder().encodeToString(token.getBytes())).httpOnly(true).sameSite("None").secure(true).build());
                     return ResponseEntity.status(HttpStatus.OK).body(new AuthResponse(jwtUtil.generateToken(userDetails)));
                 });
             } else {
                 return Mono.empty();
             }
         }).switchIfEmpty(Mono.defer(() -> {
-            response.addCookie(ResponseCookie.from("Refresh", "").httpOnly(true).sameSite("None").maxAge(0).build());
+            response.addCookie(ResponseCookie.from("Refresh", "").httpOnly(true).sameSite("None").maxAge(0).secure(true).build());
             return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse()));
         }));
     }
@@ -65,7 +65,7 @@ public class AuthController {
     @PutMapping("/logout")
     public Mono<ResponseEntity<ResponseObject>> logout(ServerHttpResponse response, @CookieValue(name = "Refresh_Token", required = true) String token) {
         return refreshTokenService.deleteToken(token).map(x -> {
-            response.addCookie(ResponseCookie.from("Refresh_Token", "").httpOnly(true).sameSite("None").maxAge(0).build());
+            response.addCookie(ResponseCookie.from("Refresh_Token", "").httpOnly(true).sameSite("None").maxAge(0).secure(true).build());
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("Logout Successful"));
         }).switchIfEmpty(Mono.defer(() -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("Logout Fail")))));
     }
@@ -75,12 +75,12 @@ public class AuthController {
         return refreshTokenService.validateToken(token)
                 .flatMap(userDetails -> {
                     return refreshTokenService.getNewToken(userDetails.getUsername(), token).flatMap(newToken -> {
-                        response.addCookie(ResponseCookie.from("Refresh_Token", Base64.getEncoder().encodeToString(newToken.getBytes())).httpOnly(true).sameSite("None").build());
+                        response.addCookie(ResponseCookie.from("Refresh_Token", Base64.getEncoder().encodeToString(newToken.getBytes())).httpOnly(true).sameSite("None").secure(true).build());
                         return Mono.just(ResponseEntity.status(HttpStatus.OK).body(new AuthResponse(jwtUtil.generateToken(userDetails))));
                     });
                 })
                 .switchIfEmpty(Mono.defer(() -> {
-                    response.addCookie(ResponseCookie.from("Refresh_Token", "").httpOnly(true).sameSite("None").maxAge(0).build());
+                    response.addCookie(ResponseCookie.from("Refresh_Token", "").httpOnly(true).sameSite("None").maxAge(0).secure(true).build());
                     return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse()));
                 }));
     }
