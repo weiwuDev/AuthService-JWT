@@ -30,7 +30,7 @@ public class SecurityConfig {
                 .authenticationManager(authenticationManager)
                 .securityContextRepository(securityContextRepository)
                 .authorizeExchange()
-                .pathMatchers("/register", "/login", "/logout", "/refresh", "/login/cookie", "/checkno").permitAll()
+                .pathMatchers("/register", "/login", "/logout", "/refresh", "/login/cookie", "/checkno", "/checkheader").permitAll()
                 .pathMatchers("/check").hasAuthority("ROLE_USER")
                 .anyExchange()
                 .authenticated()

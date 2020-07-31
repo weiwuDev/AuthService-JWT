@@ -95,4 +95,17 @@ public class AuthController {
     public Mono<ResponseEntity<ResponseObject>> checkAuthNo(WebSession webSession, ServerWebExchange exchange) {
         return Mono.just(ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(checkResponse)));
     }
+    @GetMapping("/checkheader")
+    public Mono<ResponseEntity<ResponseObject>> checkheader(@RequestHeader(value = HttpHeaders.AUTHORIZATION) String auth) {
+
+        String authToken = auth.substring(7);
+        try{
+        if (!jwtUtil.validateToken(authToken)) {
+            return Mono.just(ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("Invalid Token")));
+        }}
+        catch (Exception e){
+            return Mono.just(ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("Invalid Token")));
+        }
+        return Mono.just(ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(authToken)));
+    }
 }
